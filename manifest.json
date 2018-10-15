@@ -1,0 +1,33 @@
+{
+  "name": "Skimarizer",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "Summarizes text, highlighted text and online PDFs",
+  "icons": { "16": "16IconSkimp.png",
+           "48": "48IconSkim.png",
+          "128": "128IconSkim.png" },
+  "browser_action": {
+    "default_icon": {
+	"19": "19IconSkim.png",
+	"38": "38IconSkim.png"
+	},
+
+    "default_title": "Skimarizer",
+    "default_popup": "popup.html"
+  },
+ "permissions": [
+   "clipboardWrite",
+   "tabs",
+   "http://*/*",
+   "http://*/"
+ ],
+ "content_scripts": [
+  {
+    "all_frames": true,
+    "matches": ["http://*/*", "http://*/"],
+    "js": ["selection.js"],
+    "run_at": "document_start",
+    "all_frames": true
+  }
+ ]
+}
