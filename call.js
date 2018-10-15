@@ -564,7 +564,7 @@ chrome.tabs.query({currentWindow:true,active:true}, (function(tab){
 	var tablink = tab[0].url;
 	sessionStorage.setItem('url',tablink);
 
-	if (isPDF(tablink) == false)
+	if (isPDF(tablink) == false && response)
 	{
 	
 		var tupleVal = new Object();
@@ -594,9 +594,7 @@ chrome.tabs.query({currentWindow:true,active:true}, (function(tab){
 		sessionStorage.setItem('title',pageTitle);
 		
 		document.getElementById('title').innerHTML = pageTitle;
-	}
-	else
-	{
+	} else {
 		httpGet(tablink);
 	}
 	
