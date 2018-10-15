@@ -217,14 +217,6 @@ function top20thWordEntropy(tuple, entropyComparison) {
     }
     return words
 }
-function isHackerNews(tabLink) {
-    if ((tabLink.indexOf("http://news.ycombinator.com")) == -1) {
-        return false
-    } else {
-        return true
-    }
-}
-function startRendering(total) {}
 function pdfToText(data) {
     var div = document.getElementById('viewer');
     // render the first pages
