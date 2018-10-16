@@ -1,0 +1,24 @@
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="/summarize.js"></script>
+    <script>
+        function updateSummary() {
+            $('#summarized').html(summarize($('#original').val(), $('#complexity').val()))
+        }
+        function loadData() {
+            $.get('/page?url=' + encodeURIComponent($('#url').val()), data => {
+                $('#original').val(data);
+                updateSummary();
+            });
+        }
+    </script>
+</head>
+<body>
+    <input id="url" type="text" placeholder="Enter URL" />
+    <input id="summarize" type="button" value="Summarize" onclick="loadData()" />
+    <input id="complexity" type="range" min="0" max="101" step="1" value="50" onchange="updateSummary()" />
+    <textarea id="original" onkeyup="updateSummary()"></textarea>
+    <div id="summarized" />
+</body>
+</html>

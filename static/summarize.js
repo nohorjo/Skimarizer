@@ -1,4 +1,4 @@
-module.exports = function(text, length = 50) {
+function summarize(text, length = 50) {
     const tupleVal = makeDictionary(text);
     makeEntropy(tupleVal);
     const top20 = getTop20Entropy(tupleVal);

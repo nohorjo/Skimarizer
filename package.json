@@ -1,0 +1,23 @@
+{
+  "name": "skimarizer",
+  "version": "1.0.0",
+  "description": "summarize text",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nohorjo/Skimarizer.git"
+  },
+  "author": "Muhammed Haque",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nohorjo/Skimarizer/issues"
+  },
+  "homepage": "https://github.com/nohorjo/Skimarizer#readme",
+  "dependencies": {
+    "express": "4.16.4",
+    "jsdom": "12.2.0"
+  }
+}
