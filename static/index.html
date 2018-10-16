@@ -3,13 +3,25 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="/summarize.js"></script>
     <script>
+        function loadInText(data) {
+            $('#original').val($(`<div>${data}</div>`).text());
+            updateSummary();
+        }
         function updateSummary() {
             $('#summarized').html(summarize($('#original').val(), $('#complexity').val()))
         }
         function loadData() {
-            $.get('/page?url=' + encodeURIComponent($('#url').val()), data => {
-                $('#original').val($(`<div>${data}</div>`).text());
-                updateSummary();
+            $.get('/page?url=' + encodeURIComponent($('#url').val()), loadInText);
+        }
+        function uploadPdf() {
+             $.ajax({
+                url: '/file',
+                type: 'POST',
+                data: new FormData($('#pdfUpload')[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: loadInText
             });
         }
     </script>
@@ -17,6 +29,7 @@
         body>div {
             width: 100%;
             display: flex;
+            margin: 1em 0;
         }
 
         #url {
@@ -45,6 +58,13 @@
         <input id="url" type="text" placeholder="Enter URL" />
         <input id="summarize" type="button" value="Summarize" onclick="loadData()" />
     </div>
+    Or upload a PDF file
+    <div>
+        <form id="pdfUpload" encType="multipart/form-data">
+            <input type="file" name="pdfFile" />
+            <input type='button' value='Upload' onclick="uploadPdf()" />
+        </form>
+    </div> 
     <input id="complexity" type="range" min="0" max="101" step="1" value="50" onchange="updateSummary()" />
     <div>
         <textarea id="original" onkeyup="updateSummary()"></textarea>

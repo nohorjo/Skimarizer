@@ -20,6 +20,8 @@
   "dependencies": {
     "crawler-request": "1.2.2",
     "express": "4.16.4",
-    "jsdom": "12.2.0"
+    "express-fileupload": "1.0.0-alpha.1",
+    "jsdom": "12.2.0",
+    "pdf-parse": "1.0.8"
   }
 }
