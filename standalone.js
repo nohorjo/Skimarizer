@@ -178,7 +178,6 @@ function summarize(text, length = 50) {
     makeEntropy(tupleVal);
     top20 = getTop20Entropy(tupleVal);
     var dic = sentenceEntropy(tupleVal, (text));
-    sessionStorage.setItem('sentEnt', JSON.stringify(dic));
     maxVal = findMax(sentenceEntropy(tupleVal, (text)));
     return createText(dic, 100 - length);
 }
