@@ -8,17 +8,47 @@
         }
         function loadData() {
             $.get('/page?url=' + encodeURIComponent($('#url').val()), data => {
-                $('#original').val(data);
+                $('#original').val($(`<div>${data}</div>`).text());
                 updateSummary();
             });
         }
     </script>
+    <style>
+        body>div {
+            width: 100%;
+            display: flex;
+        }
+
+        #url {
+            flex: 3;
+        }
+
+        #summarize {
+            flex: 1;
+        }
+
+        #complexity {
+            width: 100%;
+        }
+
+        #original,
+        #summarized {
+            flex: 1;
+            padding: 1em;
+            height: 100%;
+        }
+
+    </style>
 </head>
 <body>
-    <input id="url" type="text" placeholder="Enter URL" />
-    <input id="summarize" type="button" value="Summarize" onclick="loadData()" />
+    <div>
+        <input id="url" type="text" placeholder="Enter URL" />
+        <input id="summarize" type="button" value="Summarize" onclick="loadData()" />
+    </div>
     <input id="complexity" type="range" min="0" max="101" step="1" value="50" onchange="updateSummary()" />
-    <textarea id="original" onkeyup="updateSummary()"></textarea>
-    <div id="summarized" />
+    <div>
+        <textarea id="original" onkeyup="updateSummary()"></textarea>
+        <div id="summarized" />
+    </div>
 </body>
 </html>

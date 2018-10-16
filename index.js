@@ -3,19 +3,27 @@ const os = require('os');
 const path = require('path');
 const cluster = require('cluster');
 const { JSDOM } = require('jsdom');
+const crawler = require('crawler-request');
 
-const cpus = os.cpus().length;
+const forks = process.env.FORKS || os.cpus().length;
 
-if (cluster.isMaster) {
-    for (let i = 0; i < cpus; i++) {
+if (forks > 1 && cluster.isMaster) {
+    for (let i = 0; i < forks; i++) {
         cluster.fork();
     }
 } else {
     const app = express();
 
     app.get('/page', async (req, resp) => {
-        const { window: { document } } = JSDOM.fromURL(req.query.url);
-        resp.send(Array.from(document.querySelectorAll('p')).reduce((text, p) => text + p.innerText, ''));
+        const { url } = req.query;
+        let data;
+        if (url.match(/\.pdf$/)) {
+            data = (await crawler(url)).text;
+        } else {
+            const { window: { document } } = await JSDOM.fromURL(url);
+            data = Array.from(document.querySelectorAll('p')).reduce((text, p) => text + p.innerHTML, '');
+        }
+        resp.send(data);
     });
     app.get(['/', ''], (req, res) => res.redirect('/index.html'));
     app.use(express.static(path.join(__dirname, 'static')));
