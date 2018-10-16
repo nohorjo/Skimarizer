@@ -7,149 +7,112 @@ module.exports = function(text, length = 50) {
     return createText(dic, 100 - length);
 
     function replacing(word) {
-        var newWord = word.replace('¬', '');
-        newWord = newWord.replace(' ', '');
+        let newWord = word.replace(/[¬ ]/g, '');
         if (newWord == "length") {
             newWord = "Length";
         }
-        return newWord
+        return newWord;
     }
 
     function makeDictionary(text) {
-        var tuple = new Object();
-        var n = text.replace(/\&nbsp;/g, "");
-        paran = n.replace(/\!/g, "!¬");
-        question = paran.replace(/\?/g, "?¬");
-        punc = question.replace(/\./g, ".¬");
-        var myDict = new Array();
-        var myDictWithoutThree = new Array();
-        var pureEntropy = new Array();
-        var splitText = punc.split(/(?=[\s¬,;:"])+/);
-        var countForWordLength = 0;
+        const myDict =  [];
+        const splitText = text.replace(/\&nbsp;/g, "").replace(/\!/g, "!¬").replace(/\?/g, "?¬").replace(/\./g, ".¬").split(/(?=[\s¬,;:"])+/);
         //creating dictionary of words in text and their equivalent count
         splitText.forEach(function(item) {
-            var newWord = replacing(item);
-            if (myDict.hasOwnProperty(newWord)) {
-                myDict[newWord] = myDict[newWord] + 1;
-            } else {
-                myDict[newWord] = 1;
-            }
+            const newWord = replacing(item);
+            myDict[newWord] = myDict[newWord] + 1 || 1;
         });
-        tuple.wordCount = splitText.length;
-        tuple.dictionaryWord = myDict;
-        tuple.pureEntropy = pureEntropy;
-        return tuple
+        return {
+            wordCount: splitText.length,
+            dictionaryWord: myDict,
+            pureEntropy: []
+        };
     }
 
     function makeEntropy(tuple) {
-        i = 0;
-        for (var word in tuple.dictionaryWord) {
-            var probabilityWord = tuple.dictionaryWord[word] / tuple.wordCount;
-            var entropy = -(probabilityWord * (Math.log(probabilityWord) / (Math.log(2))));
+        let i = 0;
+        Object.entries(tuple.dictionaryWord).forEach(([word, count]) => {
+            const probabilityWord = count / tuple.wordCount;
+            const entropy = -(probabilityWord * (Math.log(probabilityWord) / (Math.log(2))));
             if (word.length > 1) {
                 tuple.dictionaryWord[word] = entropy;
                 //creating an entropy array to sort
                 tuple.pureEntropy[i] = entropy;
                 i = i + 1;
             }
-        }
+        });
     }
 
     function wordByword(aSentence, tuple) {
-        var tupleSentence = new Object();
-        tupleSentence.entropy = 0;
-        tupleSentence.sentence = '';
-        var s = aSentence.replace(/\&nbsp;/g, "");
-        (s.split(/(?=[\s,;:"])+/)).forEach(function(word) {
-            var newWord = replacing(word);
-            if (newWord != '') {
-                if (!isNaN(tuple.dictionaryWord[newWord])) {
-                    tupleSentence.entropy = tupleSentence.entropy + tuple.dictionaryWord[newWord];
-                }
+        const tupleSentence = {
+            entropy: 0,
+            sentence: '',
+        };
+        aSentence.replace(/\&nbsp;/g, "").split(/(?=[\s,;:"])+/).forEach(function(word) {
+            const newWord = replacing(word);
+            if (newWord && !isNaN(tuple.dictionaryWord[newWord])) {
+                tupleSentence.entropy += tuple.dictionaryWord[newWord];
             }
-            if (top20.hasOwnProperty(newWord)) {
-                tupleSentence.sentence = tupleSentence.sentence + ' ' + newWord.bold();
-            } else {
-                tupleSentence.sentence = tupleSentence.sentence + ' ' + newWord;
-            }
+            tupleSentence.sentence += ' ' + (top20.hasOwnProperty(newWord)? newWord.bold() : newWord);
         });
-        return tupleSentence
+        return tupleSentence;
     }
 
     function sentenceEntropy(tuple, text) {
-        paran = text.replace(/\!/g, "!¬");
-        question = paran.replace(/\?/g, "?¬");
-        punc = question.replace(/\./g, ".¬");
-        var sentenceArray = punc.split("¬");
-        var sentenceEntropyDic = new Object();
-        var sentencesSelection = (sentenceArray.length) / 7;
-        var sec1 = sentencesSelection;
-        var sec2 = 2 * sentencesSelection;
-        var sec3 = 3 * sentencesSelection;
-        var sec4 = 4 * sentencesSelection;
-        var sec5 = 5 * sentencesSelection;
-        var sec6 = 6 * sentencesSelection;
-        var len = 0;
-        sentenceArray.forEach(function(sentence) {
-            if (sentence != '') {
-                var sentEntropy = wordByword(sentence, tuple);
+        const sentenceArray = text.replace(/\!/g, "!¬").replace(/\?/g, "?¬").replace(/\./g, ".¬").split("¬");
+        const sentenceEntropyDic = {};
+        const sentencesSelection = (sentenceArray.length) / 7;
+        const sec1 = sentencesSelection;
+        const sec2 = 2 * sentencesSelection;
+        const sec3 = 3 * sentencesSelection;
+        const sec4 = 4 * sentencesSelection;
+        const sec5 = 5 * sentencesSelection;
+        const sec6 = 6 * sentencesSelection;
+        sentenceArray.forEach(function(_sentence, len) {
+            if (_sentence) {
+                const { sentence, entropy } = wordByword(_sentence, tuple);
+                let multiplyer;
                 if (len < sec1) {
-                    sentenceEntropyDic[sentEntropy.sentence] = 1.6 * sentEntropy.entropy;
+                    multiplyer = 1.6;
                 } else if (len < sec2) {
-                    sentenceEntropyDic[sentEntropy.sentence] = 1.4 * sentEntropy.entropy;
+                    multiplyer = 1.4;
                 } else if (len < sec3) {
-                    sentenceEntropyDic[sentEntropy.sentence] = 1.2 * sentEntropy.entropy;
+                    multiplyer = 1.2;
                 } else if (len < sec4) {
-                    sentenceEntropyDic[sentEntropy.sentence] = sentEntropy.entropy;
+                    multiplyer = 1;
                 } else if (len < sec5) {
-                    sentenceEntropyDic[sentEntropy.sentence] = 1.2 * sentEntropy.entropy;
+                    multiplyer = 1.2;
                 } else if (len < sec6) {
-                    sentenceEntropyDic[sentEntropy.sentence] = 1.4 * sentEntropy.entropy;
+                    multiplyer = 1.4;
                 } else {
-                    sentenceEntropyDic[sentEntropy.sentence] = 1.6 * sentEntropy.entropy;
+                    multiplyer = 1.6;
                 }
+                sentenceEntropyDic[sentence] = multiplyer * entropy;
             }
-            len = len + 1;
         });
-        return sentenceEntropyDic
+        return sentenceEntropyDic;
     }
 
-    function findMax(sEntropy) {
-        var maxArray = new Array();
-        i = 0;
-        for (var index in sEntropy) {
-            maxArray[i] = sEntropy[index];
-            i = i + 1;
-        }
-        var sortedArray = maxArray.sort(function(a, b) {
-            return b - a
-        });
-        return sortedArray[0]
-    }
-
-    function createText(sentenceEntropy, sliderAmount) {
-        var text = '';
+    function createText(sentenceEntropy, length) {
+        let text = '';
         for (var index in sentenceEntropy) {
-            if ((sentenceEntropy[index] / findMax(dic)) > (sliderAmount * 0.01)) {
-                if (text != '') {
-                    text = text + '<div>' + '<p>' + index + '</p>' + '</div>';
+            if ((sentenceEntropy[index] / Math.max(...Object.values(dic))) > (length * 0.01)) {
+                if (text) {
+                    text += '<div>' + '<p>' + index + '</p>' + '</div>';
                 } else {
                     text = index;
                 }
             }
         }
-        return text.replace(" ,", ",")
+        return text.replace(" ,", ",");
     }
 
     function getTop20Entropy(tuple) {
-        tuple.pureEntropy.sort(function(a, b) {
-            return b - a
-        });
-        var topentropy = tuple.pureEntropy[0];
-        var wordsCUTleft = new Object();
-        var words = new Object();
-        var wordArray = new Array();
-        articleLength = tuple.pureEntropy.length;
+        tuple.pureEntropy.sort((a, b) => b - a);
+        const topentropy = tuple.pureEntropy[0];
+        const wordsCUTleft = {};
+        const words = {};
+        const articleLength = tuple.pureEntropy.length;
         for (var word in tuple.dictionaryWord) {
             if ((tuple.dictionaryWord[word] / topentropy) <= ((45.15 / (Math.log(articleLength) - 4) + (74.5 / articleLength + 12.46)) / 100)) {
                 var newValue = (Math.min((Math.round(Math.log(7.))), (Math.log(word.length))) * 0.75) + (0.25 * Math.log(tuple.dictionaryWord[word]));
@@ -164,21 +127,14 @@ module.exports = function(text, length = 50) {
                 tuple.dictionaryWord[word] = 0;
             }
         }
-        j = 0;
-        for (var index in wordsCUTleft) {
-            wordArray[j] = wordsCUTleft[index];
-            j = j + 1;
-        }
-        var sortedWordArray = wordArray.sort(function(a, b) {
-            return b - a
-        });
-        i = 0;
+        const twentiethWord = Object.values(wordsCUTleft).sort((a, b) => b - a)[20];
+        let i = 0;
         for (var leftcutWord in wordsCUTleft) {
-            if ((wordsCUTleft[leftcutWord] >= sortedWordArray[20]) && (i <= 20)) {
+            if ((wordsCUTleft[leftcutWord] >= twentiethWord) && (i <= 20)) {
                 words[leftcutWord] = i;
-                i = i + 1;
+                i++;
             }
         }
-        return words
+        return words;
     }
 }
